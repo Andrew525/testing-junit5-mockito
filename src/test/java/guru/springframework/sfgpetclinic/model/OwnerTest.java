@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.*;
 
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,7 +31,7 @@ class OwnerTest implements ModelTests {
                         () -> assertEquals("1231231234", owner.getTelephone())
                 ));
 
-        assertThat(owner.getCity(), is("Key West"));
+        assertThat(owner.getCity()).isEqualTo("Key West");
     }
 
     @DisplayName("Value Source Test")
