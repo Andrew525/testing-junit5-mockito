@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,40 +34,54 @@ class VisitSDJpaServiceTest {
     @Test
     @DisplayName("Test Find All")
     void findAll() {
+        //given
         Visit visit = new Visit();
         Set<Visit> visits = Set.of(visit);
-        when(repository.findAll()).thenReturn(visits);
+        given(repository.findAll()).willReturn(visits);
 
+        //when
         Set<Visit> result = service.findAll();
 
-        verify(repository).findAll();
-        verifyNoMoreInteractions(repository);
-        assertThat(result).hasSize(1);
+        //then
+        then(repository).should().findAll();
+        then(repository).shouldHaveNoMoreInteractions();
+        assertThat(result)
+                .hasSize(1)
+                .contains(visit);
     }
 
     @Test
     @DisplayName("Test Find By Id")
     void findById() {
+        //given
         Visit visit = new Visit();
-        when(repository.findById(anyLong()))
-                .thenReturn(Optional.of(visit));
+        given(repository.findById(anyLong()))
+                .willReturn(Optional.of(visit));
 
+        //when
         Visit result = service.findById(MOCK_ID);
 
-        verify(repository).findById(anyLong());
-        assertThat(result).isNotNull();
+        //then
+        then(repository).should().findById(anyLong());
+        then(repository).shouldHaveNoMoreInteractions();
+        assertThat(result)
+                .isNotNull()
+                .isEqualTo(visit);
     }
 
     @Test
     @DisplayName("Test Save")
     void save() {
+        //given
         Visit visit = new Visit();
-        when(repository.save(any(Visit.class))).thenReturn(visit);
+        given(repository.save(any(Visit.class))).willReturn(visit);
 
+        //when
         Visit result = service.save(visit);
 
-        verify(repository).save(any(Visit.class));
-        verifyNoMoreInteractions(repository);
+        //then
+        then(repository).should().save(any(Visit.class));
+        then(repository).shouldHaveNoMoreInteractions();
         assertThat(result)
                 .isNotNull()
                 .isEqualTo(visit);
@@ -74,16 +90,26 @@ class VisitSDJpaServiceTest {
     @Test
     @DisplayName("Test Delete By visit")
     void delete() {
+        //given - none
+
+        //when
         service.delete(new Visit());
-        verify(repository).delete(any(Visit.class));
-        verifyNoMoreInteractions(repository);
+
+        //then
+        then(repository).should().delete(any(Visit.class));
+        then(repository).shouldHaveNoMoreInteractions();
     }
 
     @Test
     @DisplayName("Test delete By Id")
     void deleteById() {
+        //given - none
+
+        //when
         service.deleteById(MOCK_ID);
-        verify(repository).deleteById(anyLong());
-        verifyNoMoreInteractions(repository);
+
+        //then
+        then(repository).should().deleteById(anyLong());
+        then(repository).shouldHaveNoMoreInteractions();
     }
 }

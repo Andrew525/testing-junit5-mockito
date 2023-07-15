@@ -27,15 +27,18 @@ class SpecialitySDJpaServiceTest {
 
     @Test
     void testDeleteSpecialty() {
+        //given
         Speciality speciality = new Speciality();
-        
+
+        //when
         service.delete(speciality);
-        
-        verify(repository).delete(any(Speciality.class));
+
+        //then
+        then(repository).should().delete(any(Speciality.class));
     }
 
     @Test
-    void findById_TddTest() {
+    void testFindById() {
         //given
         Speciality speciality = new Speciality();
         given(repository.findById(MOCK_ID))
@@ -52,54 +55,77 @@ class SpecialitySDJpaServiceTest {
         then(repository).shouldHaveNoMoreInteractions();
     }
 
-    @Test
-    void testFindById() {
-        Speciality speciality = new Speciality();
-
-        when(repository.findById(MOCK_ID))
-                .thenReturn(Optional.of(speciality));
-
-        Speciality result = service.findById(MOCK_ID);
-
-        assertThat(result).isNotNull();
-
-        verify(repository).findById(MOCK_ID);
-    }
+//    @Test //-------------- Example of simple approach
+//    void testFindById() {
+//        Speciality speciality = new Speciality();
+//
+//        when(repository.findById(MOCK_ID))
+//                .thenReturn(Optional.of(speciality));
+//
+//        Speciality result = service.findById(MOCK_ID);
+//
+//        assertThat(result).isNotNull();
+//
+//        verify(repository).findById(MOCK_ID);
+//    }
 
     @Test
     void testDeleteById() {
+        //given - none
+
+        //when
         service.deleteById(MOCK_ID);
         service.deleteById(MOCK_ID);
 
-        verify(repository, times(2)).deleteById(MOCK_ID);
+        //then
+        then(repository).should(times(2)).deleteById(anyLong());
     }
 
     @Test
     void testDeleteBYId_atLeastOnce() {
+        //given - none
+
+        //when
         service.deleteById(MOCK_ID);
         service.deleteById(MOCK_ID);
 
-        verify(repository, atLeastOnce()).deleteById(MOCK_ID);
+        //then
+        then(repository).should(atLeastOnce()).deleteById(anyLong());
     }
 
     @Test
     void testDeleteById_atMost() {
+        //given - none
+
+        //when
         service.deleteById(MOCK_ID);
         service.deleteById(MOCK_ID);
 
-        verify(repository, atMost(3)).deleteById(MOCK_ID);
+        //then
+        then(repository).should(atMost(3)).deleteById(anyLong());
     }
 
     @Test
     void testDeleteById_neverInvoke() {
-        service.deleteById(MOCK_ID);
-        verify(repository).deleteById(MOCK_ID);
+        //given - none
 
-        verify(repository, never()).deleteById(3L);
+        //when
+        service.deleteById(MOCK_ID);
+
+        //then
+        then(repository).should(never()).deleteById(MOCK_ID + 1L);
+        then(repository).should().deleteById(anyLong());
     }
 
     @Test
     void testDelete() {
+        //given - none
+
+        //when
         service.delete(new Speciality());
+
+        //then
+        then(repository).should().delete(any(Speciality.class));
+        then(repository).shouldHaveNoMoreInteractions();
     }
 }
