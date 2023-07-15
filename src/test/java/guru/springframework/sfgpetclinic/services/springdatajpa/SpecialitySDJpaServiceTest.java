@@ -11,9 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SpecialitySDJpaServiceTest {
@@ -127,5 +127,95 @@ class SpecialitySDJpaServiceTest {
         //then
         then(repository).should().delete(any(Speciality.class));
         then(repository).shouldHaveNoMoreInteractions();
+    }
+
+
+    @Test
+    void testDoThrow() {
+        //mockito throw exception
+        doThrow(new RuntimeException("Boom")).when(repository).delete(any(Speciality.class));
+
+        //junit catching
+        assertThrows(RuntimeException.class, () -> repository.delete(new Speciality()));
+
+        //mockito verifying invocation
+        verify(repository).delete(any(Speciality.class));
+    }
+
+    @Test
+    void testFindByIdThrows() {
+        //given
+        given(repository.findById(MOCK_ID)).willThrow(new RuntimeException("boom"));
+
+        //when
+        // mockito catching
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> repository.findById(MOCK_ID));
+
+        //then
+        then(repository).should().findById(anyLong());
+    }
+
+    @Test
+    void testDeleteBdd() {
+        //given
+        willThrow(new RuntimeException("boom")).given(repository).delete(any(Speciality.class));
+
+        //when
+        // mockito catching
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> repository.delete(new Speciality()));
+
+        //then
+        then(repository).should().delete(any(Speciality.class));
+    }
+
+
+    @Test
+    void testSaveLambda_match() {
+        //given
+        final String MATCH_ME = "MATCH_ME";
+        Speciality speciality = new Speciality();
+        speciality.setDescription(MATCH_ME);
+
+        Speciality saved = new Speciality();
+        saved.setId(MOCK_ID);
+
+        // not valid logic but works :)
+        given(repository.save(argThat(arg -> arg.getDescription().equals(MATCH_ME))))
+                .willReturn(saved);
+
+        //when
+        Speciality result = service.save(speciality);
+
+        //then
+        assertThat(result.getId()).isEqualTo(MOCK_ID);
+    }
+
+    @Test
+    void testSaveLambda_NoMatch() {
+        //given
+        final String MATCH_ME = "MATCH_ME";
+        Speciality speciality = new Speciality();
+        speciality.setDescription("Not a match");
+
+        Speciality saved = new Speciality();
+        saved.setId(MOCK_ID);
+
+//        version 1
+//        lenient().when(repository.save(argThat(argument -> argument.getDescription().equals(MATCH_ME))))
+//                .thenReturn(saved);
+
+//        version 2
+        given(repository.save(any(Speciality.class)))
+                .willAnswer(inv -> ((Speciality) inv.getArgument(0)).getDescription().equals(MATCH_ME) ? saved : null);
+
+        //when
+        Speciality result = service.save(speciality);
+
+        //then
+        assertThat(result).isNull();
+
+//        then(repository).should().save(argThat(argument -> !argument.getDescription().equals(MATCH_ME)));
     }
 }
