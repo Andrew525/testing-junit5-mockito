@@ -11,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,12 +26,30 @@ class SpecialitySDJpaServiceTest {
     SpecialitySDJpaService service;
 
     @Test
-    void testDeleteByObject() {
+    void testDeleteSpecialty() {
         Speciality speciality = new Speciality();
-
+        
         service.delete(speciality);
-
+        
         verify(repository).delete(any(Speciality.class));
+    }
+
+    @Test
+    void findById_TddTest() {
+        //given
+        Speciality speciality = new Speciality();
+        given(repository.findById(MOCK_ID))
+                .willReturn(Optional.of(speciality));
+
+        //when
+        Speciality result = service.findById(MOCK_ID);
+
+        //then
+        assertThat(result)
+                .isNotNull()
+                .isEqualTo(speciality);
+        then(repository).should(times(1)).findById(anyLong());
+        then(repository).shouldHaveNoMoreInteractions();
     }
 
     @Test
