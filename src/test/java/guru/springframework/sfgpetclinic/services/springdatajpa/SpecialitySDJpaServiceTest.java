@@ -51,7 +51,7 @@ class SpecialitySDJpaServiceTest {
         assertThat(result)
                 .isNotNull()
                 .isEqualTo(speciality);
-        then(repository).should(times(1)).findById(anyLong());
+        then(repository).should(timeout(100)).findById(anyLong()); // timeout <---------->
         then(repository).shouldHaveNoMoreInteractions();
     }
 
@@ -78,7 +78,7 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(MOCK_ID);
 
         //then
-        then(repository).should(times(2)).deleteById(anyLong());
+        then(repository).should(timeout(200).times(2)).deleteById(anyLong()); //timeout
     }
 
     @Test
